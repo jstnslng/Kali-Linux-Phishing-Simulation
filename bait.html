@@ -1,25 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Security Awareness Training</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign in – Google Accounts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f8f9fa;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .logo-area {
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .google-logo {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 36px;
+      letter-spacing: -1px;
+    }
+    .g-blue { color: #4285f4; }
+    .g-red  { color: #ea4335; }
+    .g-yellow{ color: #fbbc05; }
+    .g-green { color: #34a853; }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.12);
+      padding: 40px 40px 36px;
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+    }
+
+    .card h1 {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 24px;
+      color: #202124;
+      margin-bottom: 8px;
+      font-weight: 400;
+    }
+
+    .card .subtitle {
+      font-size: 16px;
+      color: #202124;
+      margin-bottom: 24px;
+    }
+
+    .input-group {
+      text-align: left;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 13px 16px;
+      font-size: 16px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      outline: none;
+      color: #202124;
+      font-family: 'Roboto', sans-serif;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .input-group input:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26,115,232,.25);
+    }
+
+    .input-group label {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: #80868b;
+      pointer-events: none;
+      transition: all .15s ease;
+      background: #fff;
+      padding: 0 2px;
+    }
+
+    .input-group input:focus + label,
+    .input-group input:not(:placeholder-shown) + label {
+      top: 0;
+      font-size: 12px;
+      color: #1a73e8;
+    }
+
+    .forgot {
+      display: block;
+      text-align: left;
+      font-size: 14px;
+      color: #1a73e8;
+      text-decoration: none;
+      margin-top: -12px;
+      margin-bottom: 24px;
+      cursor: pointer;
+    }
+    .forgot:hover { text-decoration: underline; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0 20px;
+      color: #5f6368;
+      font-size: 13px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e0e0e0;
+    }
+
+    .btn-next {
+      background: #1a73e8;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 10px 24px;
+      cursor: pointer;
+      transition: background .2s, box-shadow .2s;
+      letter-spacing: .25px;
+    }
+    .btn-next:hover {
+      background: #1765cc;
+      box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 28px;
+    }
+
+    .create-account {
+      font-size: 14px;
+      color: #1a73e8;
+      text-decoration: none;
+      font-family: 'Google Sans', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .create-account:hover { text-decoration: underline; }
+
+    .footer-links {
+      margin-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #80868b;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .footer-links a { color: #80868b; text-decoration: none; }
+    .footer-links a:hover { text-decoration: underline; }
+
+    .password-row { display: none; }
+    .password-row.visible { display: block; }
+
+    /* Shake animation on wrong password */
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+    .shake { animation: shake .4s ease; }
+
+    .error-msg {
+      color: #d93025;
+      font-size: 12px;
+      margin-top: 6px;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+  </style>
 </head>
-<body class="success-body">
-    <div class="content">
-        <div class="warning-text">⚠️ SECURITY ALERT</div>
-        <h1>This was a Phishing Simulation</h1>
-        <p>If this had been a real attack, your credentials would now be in the hands of a hacker.</p>
-        
-        <div class="tips-container">
-            <h3>How to stay safe:</h3>
-            <ul>
-                <li><strong>Check the URL:</strong> Always look at the address bar before typing passwords.</li>
-                <li><strong>Inspect the sender:</strong> Does the email address match the company?</li>
-                <li><strong>Report it:</strong> Use your company's "Report Phishing" button.</li>
-            </ul>
-        </div>
-        <p><br><em>Your data was not stored permanently during this simulation.</em></p>
+<body>
+
+<div class="logo-area">
+  <div class="google-logo">
+    <span class="g-blue">G</span><span class="g-red">o</span><span class="g-yellow">o</span><span class="g-blue">g</span><span class="g-green">l</span><span class="g-red">e</span>
+  </div>
+</div>
+
+<div class="card" id="card">
+  <h1>Sign in</h1>
+  <p class="subtitle">Use your Google Account</p>
+
+  <!-- Step 1: Email -->
+  <div id="step-email">
+    <div class="input-group">
+      <input type="email" id="email" placeholder=" " autocomplete="email" />
+      <label for="email">Email or phone</label>
     </div>
+    <p style="font-size:13px;color:#5f6368;text-align:left;margin-bottom:20px;">Not your computer? Use Guest mode to sign in privately.</p>
+    <a class="forgot" href="#">Forgot email?</a>
+    <div class="actions">
+      <a class="create-account" href="#">Create account</a>
+      <button class="btn-next" onclick="goToPassword()">Next</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Password -->
+  <div id="step-password" style="display:none;">
+    <div style="display:flex;align-items:center;gap:10px;border:1px solid #dadce0;border-radius:20px;padding:6px 14px;margin-bottom:20px;width:fit-content;cursor:default;">
+      <div style="width:28px;height:28px;border-radius:50%;background:#1a73e8;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">👤</div>
+      <span id="email-display" style="font-size:14px;color:#202124;"></span>
+      <span style="font-size:12px;color:#5f6368;margin-left:4px;">▾</span>
+    </div>
+
+    <div class="input-group">
+      <input type="password" id="password" placeholder=" " autocomplete="current-password" />
+      <label for="password">Enter your password</label>
+      <p class="error-msg" id="pw-error">Wrong password. Try again or click Forgot password to reset it.</p>
+    </div>
+
+    <a class="forgot" href="#">Forgot password?</a>
+
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;text-align:left;">
+      <input type="checkbox" id="show-pw" onchange="togglePw()">
+      <label for="show-pw" style="font-size:14px;color:#202124;cursor:pointer;">Show password</label>
+    </div>
+
+    <div class="actions">
+      <a class="create-account" href="#">More options</a>
+      <button class="btn-next" onclick="submitForm()">Next</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer-links">
+  <a href="#">English (United States)</a>
+  <div style="display:flex;gap:16px;">
+    <a href="#">Help</a>
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+  </div>
+</div>
+
+<script>
+  function goToPassword() {
+    const email = document.getElementById('email').value.trim();
+    if (!email) {
+      document.getElementById('email').focus();
+      return;
+    }
+    document.getElementById('step-email').style.display = 'none';
+    document.getElementById('step-password').style.display = 'block';
+    document.getElementById('email-display').textContent = email;
+    document.getElementById('password').focus();
+  }
+
+  function togglePw() {
+    const pw = document.getElementById('password');
+    pw.type = pw.type === 'password' ? 'text' : 'password';
+  }
+
+  function submitForm() {
+    const pw = document.getElementById('password').value;
+    if (!pw) {
+      document.getElementById('password').focus();
+      return;
+    }
+
+    // Store captured data temporarily for demo (no server)
+    const email = document.getElementById('email').value;
+    sessionStorage.setItem('phish_email', email);
+    sessionStorage.setItem('phish_pw', pw);
+
+    // Redirect to awareness page
+    window.location.href = 'index.html';
+  }
+
+  // Allow Enter key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const step2 = document.getElementById('step-password');
+      if (step2.style.display === 'none') goToPassword();
+      else submitForm();
+    }
+  });
+</script>
 </body>
 </html>

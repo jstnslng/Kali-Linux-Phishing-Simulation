@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sign in – Google Accounts</title>
+  <link rel="icon" href="https://www.google.com/favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -22,6 +23,12 @@
     .logo-area {
       margin-bottom: 10px;
       text-align: center;
+      display: flex;
+      justify-content: center;
+    }
+
+    .logo-area svg {
+      display: block;
     }
 
     .google-logo {
@@ -195,14 +202,45 @@
       display: none;
     }
     .error-msg.visible { display: block; }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #1a73e8;
+      margin: 0 2px;
+      animation: bounce 1.4s infinite;
+    }
+    .spinner:nth-child(1) { animation-delay: 0s; }
+    .spinner:nth-child(2) { animation-delay: 0.2s; }
+    .spinner:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { opacity: 0.3; transform: scale(1); }
+      40% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .loader {
+      display: none;
+      text-align: center;
+      margin-top: 12px;
+    }
+    .loader.visible { display: block; }
   </style>
 </head>
 <body>
+<!-- AUTHORIZED SECURITY SIMULATION - FOR EDUCATIONAL USE ONLY -->
+<!-- This page is part of a controlled phishing awareness exercise -->
+<!-- No credentials are stored or transmitted to any server -->
 
 <div class="logo-area">
-  <div class="google-logo">
-    <span class="g-blue">G</span><span class="g-red">o</span><span class="g-yellow">o</span><span class="g-blue">g</span><span class="g-green">l</span><span class="g-red">e</span>
-  </div>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100" width="120" height="40">
+    <text x="150" y="60" font-family="Arial, sans-serif" font-size="50" font-weight="bold" text-anchor="middle">
+      <tspan fill="#4285f4">G</tspan><tspan fill="#ea4335">o</tspan><tspan fill="#fbbc05">o</tspan><tspan fill="#4285f4">g</tspan><tspan fill="#34a853">l</tspan><tspan fill="#ea4335">e</tspan>
+    </text>
+  </svg>
 </div>
 
 <div class="card" id="card">
@@ -226,7 +264,7 @@
   <!-- Step 2: Password -->
   <div id="step-password" style="display:none;">
     <div style="display:flex;align-items:center;gap:10px;border:1px solid #dadce0;border-radius:20px;padding:6px 14px;margin-bottom:20px;width:fit-content;cursor:default;">
-      <div style="width:28px;height:28px;border-radius:50%;background:#1a73e8;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;">👤</div>
+      <div id="avatar-circle" style="width:28px;height:28px;border-radius:50%;background:#1a73e8;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:bold;"></div>
       <span id="email-display" style="font-size:14px;color:#202124;"></span>
       <span style="font-size:12px;color:#5f6368;margin-left:4px;">▾</span>
     </div>
@@ -267,10 +305,24 @@
       document.getElementById('email').focus();
       return;
     }
+    
+    // Show loading spinner for 600ms
     document.getElementById('step-email').style.display = 'none';
-    document.getElementById('step-password').style.display = 'block';
-    document.getElementById('email-display').textContent = email;
-    document.getElementById('password').focus();
+    const loaderDiv = document.createElement('div');
+    loaderDiv.innerHTML = '<div class="loader visible"><div class="spinner"></div><div class="spinner"></div><div class="spinner"></div></div>';
+    document.getElementById('card').appendChild(loaderDiv);
+    
+    setTimeout(() => {
+      loaderDiv.remove();
+      document.getElementById('step-password').style.display = 'block';
+      document.getElementById('email-display').textContent = email;
+      
+      // Set avatar initial letter
+      const firstLetter = email.charAt(0).toUpperCase();
+      document.getElementById('avatar-circle').textContent = firstLetter;
+      
+      document.getElementById('password').focus();
+    }, 600);
   }
 
   function togglePw() {

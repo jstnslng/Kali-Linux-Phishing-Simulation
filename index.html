@@ -358,7 +358,56 @@
     }
     .stat-card .label { font-size: 13px; color: #888; line-height: 1.5; }
 
-    /* ── DIVIDER ── */
+    /* ── QUIZ ── */
+    .quiz-question {
+      background: var(--dark3);
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .quiz-question.visible { opacity: 1; transform: translateY(0); }
+
+    .quiz-question h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #f0f0f0;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .quiz-option {
+      background: var(--dark2);
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: all .2s;
+      font-size: 14px;
+      color: #aaa;
+    }
+    .quiz-option:hover { border-color: var(--orange); }
+    .quiz-option.selected { border-color: var(--red); background: rgba(255,45,45,.1); }
+    .quiz-option.correct { border-color: var(--green); background: rgba(0,230,118,.1); color: var(--green); }
+    .quiz-option.incorrect { border-color: var(--red); background: rgba(255,45,45,.1); color: var(--red); }
+    .quiz-option.disabled { cursor: not-allowed; opacity: .6; }
+
+    .quiz-feedback {
+      margin-top: 12px;
+      font-size: 13px;
+      display: none;
+    }
+    .quiz-feedback.visible { display: block; }
+    .quiz-feedback.correct { color: var(--green); }
+    .quiz-feedback.incorrect { color: var(--red); }
     .divider {
       border: none;
       border-top: 1px solid #222;
@@ -433,7 +482,7 @@
     </div>
     <div class="line">
       <span class="key">password:</span>
-      <span class="val" id="disp-pw">••••••••••</span>
+      <span class="val" id="disp-pw">s•••••••••• (11 chars)</span>
     </div>
     <div class="line">
       <span class="key">ip:</span>
@@ -443,6 +492,11 @@
       <span class="key">timestamp:</span>
       <span class="val" id="disp-time"></span>
     </div>
+    <div class="line">
+      <span class="key">exposed:</span>
+      <span class="val" id="disp-elapsed">0s and counting</span>
+    </div>
+    <div style="font-size: 11px; color: #666; margin-top: 8px; display: none;" id="demo-label">(demo data — no credentials detected)</div>
     <span class="terminal-cursor"></span>
   </div>
 
@@ -535,9 +589,24 @@
   </div>
 </section>
 
-<hr class="divider"/>
 
-<!-- ══════════ STATS ══════════ -->
+<!-- ══════════ QUIZ ══════════ -->
+<section>
+  <p class="section-tag">Phase 05 — Test Yourself</p>
+  <h2>Can You Spot<br/>the Phish?</h2>
+  <p>Test your new knowledge with this quick quiz. See if you can identify real phishing red flags.</p>
+
+  <div class="quiz-container" id="quiz-container" style="margin-top: 40px;">
+    <!-- Questions will be inserted here by JavaScript -->
+  </div>
+
+  <div class="quiz-score" id="quiz-score" style="display: none; margin-top: 40px; text-align: center;">
+    <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+    <h3 style="font-family: 'Syne', sans-serif; font-size: 28px; margin-bottom: 12px;" id="score-text">Quiz Complete!</h3>
+    <p id="score-detail" style="color: #aaa; font-size: 16px; margin-bottom: 20px;"></p>
+    <button onclick="resetQuiz()" style="background: var(--green); color: var(--dark); border: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: 'Syne', sans-serif;">Retake Quiz</button>
+  </div>
+</section>
 <section>
   <p class="section-tag">Phase 03 — The Scale of the Problem</p>
   <h2>Phishing By<br/>the Numbers</h2>
@@ -623,12 +692,154 @@
 </footer>
 
 <script>
+  // Start time elapsed counter
+  let startTime = null;
+  function updateElapsedTime() {
+    if (startTime === null) startTime = Date.now();
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById('disp-elapsed').textContent = elapsed + 's and counting';
+  }
+  setInterval(updateElapsedTime, 1000);
+
   // Populate captured data from sessionStorage
   const email = sessionStorage.getItem('phish_email');
-  const pw    = sessionStorage.getItem('phish_pw');
-  if (email) document.getElementById('disp-email').textContent = email;
-  if (pw)    document.getElementById('disp-pw').textContent    = '•'.repeat(pw.length) + ' (' + pw.length + ' chars)';
+  const pw = sessionStorage.getItem('phish_pw');
+  
+  if (!email || !pw) {
+    // Demo data fallback
+    document.getElementById('disp-email').textContent = 'victim@example.com';
+    document.getElementById('disp-pw').textContent = 's•••••••••• (11 chars)';
+    document.getElementById('demo-label').style.display = 'block';
+  } else {
+    document.getElementById('disp-email').textContent = email;
+    // Show first character + dots + count
+    const firstChar = pw.charAt(0);
+    const dotCount = pw.length - 1;
+    document.getElementById('disp-pw').textContent = firstChar + '•'.repeat(Math.max(0, dotCount)) + ' (' + pw.length + ' chars)';
+  }
+  
   document.getElementById('disp-time').textContent = new Date().toLocaleString();
+
+  // Quiz functionality
+  const quizQuestions = [
+    {
+      question: "You receive an email saying \"Verify your account immediately or it will be closed\" with a link. What\\'s the red flag?",
+      options: [
+        "The email uses urgent language and pressure tactics",
+        "Legitimate companies never send urgent emails",
+        "The sender address looks unusual (hover to verify)",
+        "All of the above"
+      ],
+      correct: 3
+    },
+    {
+      question: "On a \"Microsoft login\" page, you notice the URL is \"microsoft-login.xyz\" instead of \"outlook.office.com\". What does this suggest?",
+      options: [
+        "It might be a legitimate alternative Microsoft domain",
+        "This is a phishing page cloning the legitimate site",
+        "Microsoft uses multiple domain names for security",
+        "The padlock icon makes it safe to proceed"
+      ],
+      correct: 1
+    },
+    {
+      question: "After clicking a suspicious link, the login form asks you for your email, password, AND your credit card number. What should you do?",
+      options: [
+        "Provide the information — they might need it for security",
+        "Stop immediately. Exit and report it",
+        "Ask if they offer two-factor authentication first",
+        "Fill in fake data to test if it works"
+      ],
+      correct: 1
+    }
+  ];
+
+  let currentQuestion = 0;
+  let score = 0;
+  let answered = false;
+
+  function displayQuestion() {
+    const container = document.getElementById('quiz-container');
+    container.innerHTML = '';
+    answered = false;
+
+    const q = quizQuestions[currentQuestion];
+    const qDiv = document.createElement('div');
+    qDiv.className = 'quiz-question visible';
+
+    let html = `<h4>Question ${currentQuestion + 1} of ${quizQuestions.length}</h4><h4 style="font-size:16px;font-weight:700;margin-bottom:16px;margin-top:8px;">${q.question}</h4><div class="quiz-options">`;
+
+    q.options.forEach((opt, idx) => {
+      html += `<div class="quiz-option" onclick="answerQuestion(${idx})">${opt}</div>`;
+    });
+
+    html += '</div><div class="quiz-feedback" id="feedback"></div>';
+    qDiv.innerHTML = html;
+    container.appendChild(qDiv);
+  }
+
+  function answerQuestion(selected) {
+    if (answered) return;
+    answered = true;
+
+    const q = quizQuestions[currentQuestion];
+    const options = document.querySelectorAll('.quiz-option');
+    const feedback = document.getElementById('feedback');
+
+    options.forEach((opt, idx) => {
+      opt.classList.add('disabled');
+      if (idx === q.correct) {
+        opt.classList.add('correct');
+      }
+      if (idx === selected && selected !== q.correct) {
+        opt.classList.add('incorrect');
+      }
+    });
+
+    if (selected === q.correct) {
+      score++;
+      feedback.className = 'quiz-feedback visible correct';
+      feedback.textContent = '✓ Correct!';
+    } else {
+      feedback.className = 'quiz-feedback visible incorrect';
+      feedback.textContent = '✗ Incorrect. The correct answer is: ' + q.options[q.correct];
+    }
+
+    // Auto-advance after 2 seconds
+    setTimeout(() => {
+      if (currentQuestion < quizQuestions.length - 1) {
+        currentQuestion++;
+        displayQuestion();
+      } else {
+        showQuizScore();
+      }
+    }, 2000);
+  }
+
+  function showQuizScore() {
+    document.getElementById('quiz-container').style.display = 'none';
+    document.getElementById('quiz-score').style.display = 'block';
+    const percentage = Math.round((score / quizQuestions.length) * 100);
+    document.getElementById('score-text').textContent = score + ' out of ' + quizQuestions.length + ' correct';
+    if (percentage === 100) {
+      document.getElementById('score-detail').textContent = 'Perfect! You\'re a phishing expert! 🏆';
+    } else if (percentage >= 67) {
+      document.getElementById('score-detail').textContent = 'Well done! You spotted the key warning signs. ' + percentage + '%';
+    } else {
+      document.getElementById('score-detail').textContent = 'Keep learning. Review the red flags section above. ' + percentage + '%';
+    }
+  }
+
+  function resetQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    document.getElementById('quiz-container').style.display = 'block';
+    document.getElementById('quiz-score').style.display = 'none';
+    displayQuestion();
+  }
+
+  // Initialize quiz
+  displayQuestion();
 
   // Scroll-triggered animations
   const observer = new IntersectionObserver((entries) => {
@@ -637,7 +848,7 @@
     });
   }, { threshold: 0.15 });
 
-  document.querySelectorAll('.t-item, .flag-card, .step, .stat-card').forEach(el => observer.observe(el));
+  document.querySelectorAll('.t-item, .flag-card, .step, .stat-card, .quiz-question').forEach(el => observer.observe(el));
 </script>
 </body>
 </html>

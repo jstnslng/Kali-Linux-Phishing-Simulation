@@ -272,7 +272,7 @@
     <div class="input-group">
       <input type="password" id="password" placeholder=" " autocomplete="current-password" />
       <label for="password">Enter your password</label>
-      <p class="error-msg" id="pw-error">Wrong password. Try again or click Forgot password to reset it.</p>
+      <p class="error-msg" id="pw-error"></p>
     </div>
 
     <a class="forgot" href="#">Forgot password?</a>
@@ -332,7 +332,18 @@
 
   function submitForm() {
     const pw = document.getElementById('password').value;
+    const errorMsg = document.getElementById('pw-error');
+    errorMsg.textContent = '';
+    errorMsg.classList.remove('visible');
+    
     if (!pw) {
+      document.getElementById('password').focus();
+      return;
+    }
+    
+    if (pw.length < 3) {
+      errorMsg.textContent = 'Password must be at least 3 characters';
+      errorMsg.classList.add('visible');
       document.getElementById('password').focus();
       return;
     }

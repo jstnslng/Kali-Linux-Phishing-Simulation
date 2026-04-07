@@ -408,6 +408,114 @@
     .quiz-feedback.visible { display: block; }
     .quiz-feedback.correct { color: var(--green); }
     .quiz-feedback.incorrect { color: var(--red); }
+
+    /* ── PROGRESS BAR ── */
+    .quiz-progress {
+      height: 4px;
+      background: var(--dark3);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .quiz-progress-fill {
+      height: 100%;
+      background: var(--orange);
+      transition: width .3s ease;
+    }
+
+    /* ── CERTIFICATE ── */
+    .certificate-card {
+      background: var(--dark3);
+      border: 2px dashed var(--orange);
+      border-radius: 8px;
+      padding: 32px;
+      max-width: 500px;
+      margin: 30px auto 0;
+      text-align: center;
+      opacity: 0;
+      transform: scale(.95);
+      animation: certFade .5s ease forwards;
+    }
+
+    @keyframes certFade {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .certificate-card .cert-emoji { font-size: 48px; margin-bottom: 16px; }
+    .certificate-card h4 {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--orange);
+    }
+    .certificate-card p { font-size: 14px; color: #aaa; line-height: 1.6; margin-bottom: 16px; }
+    .certificate-card .cert-score { font-size: 16px; color: var(--green); font-weight: 700; margin-bottom: 16px; }
+    .certificate-card .cert-note { font-size: 12px; color: #666; font-style: italic; margin-top: 16px; }
+
+    /* ── COPY BUTTON ── */
+    .copy-score-btn {
+      background: transparent;
+      border: 1px solid #333;
+      color: #aaa;
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: 'DM Sans', sans-serif;
+      margin-top: 16px;
+    }
+    .copy-score-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+    /* ── MOBILE RESPONSIVENESS ── */
+    @media (max-width: 480px) {
+      .captured-box {
+        font-size: 12px;
+        padding: 16px 20px;
+      }
+      .captured-box .line {
+        flex-direction: column;
+        gap: 2px;
+      }
+      .captured-box .key { min-width: auto; }
+    }
+
+    /* ── STICKY NAVBAR ── */
+    .progress-navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--dark2);
+      border-bottom: 1px solid #222;
+      padding: 12px 24px;
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+    }
+
+    .progress-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: transparent;
+      border: 1px solid #333;
+      color: #888;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: all .2s;
+      font-family: 'Syne', sans-serif;
+    }
+
+    .progress-pill:hover { border-color: var(--orange); color: var(--orange); }
+    .progress-pill.active { background: var(--orange); color: var(--dark); border-color: var(--orange); }
+
     .divider {
       border: none;
       border-top: 1px solid #222;
@@ -507,6 +615,14 @@
   </div>
 </div>
 
+<div class="progress-navbar" id="progress-navbar">
+  <button class="progress-pill" data-section="0" onclick="scrollToSection(0)">01 Attack</button>
+  <button class="progress-pill" data-section="1" onclick="scrollToSection(1)">02 Red Flags</button>
+  <button class="progress-pill" data-section="2" onclick="scrollToSection(2)">03 Stats</button>
+  <button class="progress-pill" data-section="3" onclick="scrollToSection(3)">04 Defense</button>
+  <button class="progress-pill" data-section="4" onclick="scrollToSection(4)">05 Quiz</button>
+</div>
+
 <hr class="divider"/>
 
 <!-- ══════════ HOW IT HAPPENED ══════════ -->
@@ -589,25 +705,7 @@
   </div>
 </section>
 
-
-<!-- ══════════ QUIZ ══════════ -->
-<section>
-  <p class="section-tag">Phase 05 — Test Yourself</p>
-  <h2>Can You Spot<br/>the Phish?</h2>
-  <p>Test your new knowledge with this quick quiz. See if you can identify real phishing red flags.</p>
-
-  <div class="quiz-container" id="quiz-container" style="margin-top: 40px;">
-    <!-- Questions will be inserted here by JavaScript -->
-  </div>
-
-  <div class="quiz-score" id="quiz-score" style="display: none; margin-top: 40px; text-align: center;">
-    <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
-    <h3 style="font-family: 'Syne', sans-serif; font-size: 28px; margin-bottom: 12px;" id="score-text">Quiz Complete!</h3>
-    <p id="score-detail" style="color: #aaa; font-size: 16px; margin-bottom: 20px;"></p>
-    <button onclick="resetQuiz()" style="background: var(--green); color: var(--dark); border: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: 'Syne', sans-serif;">Retake Quiz</button>
-  </div>
-</section>
-<section>
+<hr class="divider"/>
   <p class="section-tag">Phase 03 — The Scale of the Problem</p>
   <h2>Phishing By<br/>the Numbers</h2>
   <p>This isn't a rare or exotic attack — it's the most common cyber threat in the world, affecting millions every year.</p>
@@ -675,6 +773,41 @@
         <h4>Check Other Accounts Using the Same Password</h4>
         <p>If you reuse passwords, attackers will try them elsewhere. Update all accounts that share that password immediately.</p>
       </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ══════════ QUIZ ══════════ -->
+<section>
+  <p class="section-tag">Phase 05 — Test Yourself</p>
+  <h2>Can You Spot<br/>the Phish?</h2>
+  <p>Test your new knowledge with this quick quiz. See if you can identify real phishing red flags.</p>
+
+  <div class="quiz-progress" id="quiz-progress" style="margin-top: 40px;">
+    <div class="quiz-progress-fill" id="quiz-progress-fill" style="width: 0%;"></div>
+  </div>
+
+  <div class="quiz-container" id="quiz-container">
+    <!-- Questions will be inserted here by JavaScript -->
+  </div>
+
+  <div class="quiz-score" id="quiz-score" style="display: none;">
+    <div style="background: var(--dark3); border: 1px solid #2a2a2a; border-radius: 8px; padding: 32px; max-width: 500px; margin: 0 auto;">
+      <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+      <h3 style="font-family: 'Syne', sans-serif; font-size: 28px; margin-bottom: 12px;" id="score-text">Quiz Complete!</h3>
+      <p id="score-detail" style="color: #aaa; font-size: 16px; margin-bottom: 20px;"></p>
+      <button onclick="copyScoreToClipboard()" class="copy-score-btn">📋 Copy Score</button>
+      <button onclick="resetQuiz()" style="background: var(--green); color: var(--dark); border: none; padding: 12px 24px; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: 'Syne', sans-serif; margin-left: 8px;">🔄 Retake Quiz</button>
+    </div>
+
+    <div class="certificate-card">
+      <div class="cert-emoji">🛡️</div>
+      <h4>Security Awareness Certificate</h4>
+      <p>This certifies that you completed the Phishing Awareness Simulation on <span id="cert-date"></span></p>
+      <div class="cert-score">Final Score: <span id="cert-score">0</span> out of 3</div>
+      <p class="cert-note">📸 Screenshot this for your records</p>
     </div>
   </div>
 </section>
@@ -767,6 +900,10 @@
     const qDiv = document.createElement('div');
     qDiv.className = 'quiz-question visible';
 
+    // Update progress bar
+    const progressPercent = ((currentQuestion + 1) / quizQuestions.length) * 100;
+    document.getElementById('quiz-progress-fill').style.width = progressPercent + '%';
+
     let html = `<h4>Question ${currentQuestion + 1} of ${quizQuestions.length}</h4><h4 style="font-size:16px;font-weight:700;margin-bottom:16px;margin-top:8px;">${q.question}</h4><div class="quiz-options">`;
 
     q.options.forEach((opt, idx) => {
@@ -818,9 +955,12 @@
 
   function showQuizScore() {
     document.getElementById('quiz-container').style.display = 'none';
+    document.getElementById('quiz-progress').style.display = 'none';
     document.getElementById('quiz-score').style.display = 'block';
     const percentage = Math.round((score / quizQuestions.length) * 100);
     document.getElementById('score-text').textContent = score + ' out of ' + quizQuestions.length + ' correct';
+    document.getElementById('cert-score').textContent = score;
+    
     if (percentage === 100) {
       document.getElementById('score-detail').textContent = 'Perfect! You\'re a phishing expert! 🏆';
     } else if (percentage >= 67) {
@@ -828,14 +968,65 @@
     } else {
       document.getElementById('score-detail').textContent = 'Keep learning. Review the red flags section above. ' + percentage + '%';
     }
+
+    // Set certificate date
+    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('cert-date').textContent = today;
+  }
+
+  function copyScoreToClipboard() {
+    const scoreText = `I scored ${score}/3 on the phishing awareness quiz! 🛡️ #CyberSecurity`;
+    navigator.clipboard.writeText(scoreText).then(() => {
+      const btn = event.target;
+      const originalText = btn.textContent;
+      btn.textContent = 'Copied! ✓';
+      btn.style.borderColor = 'var(--green)';
+      btn.style.color = 'var(--green)';
+      setTimeout(() => {
+        btn.textContent = originalText;
+        btn.style.borderColor = '#333';
+        btn.style.color = '#aaa';
+      }, 2000);
+    });
   }
 
   function resetQuiz() {
     currentQuestion = 0;
     score = 0;
     document.getElementById('quiz-container').style.display = 'block';
+    document.getElementById('quiz-progress').style.display = 'block';
     document.getElementById('quiz-score').style.display = 'none';
     displayQuestion();
+  }
+
+  // Sticky navbar functionality
+  const sectionMap = [
+    document.querySelector('section:nth-of-type(1)'),  // Phase 01
+    document.querySelector('section:nth-of-type(2)'),  // Phase 02
+    document.querySelector('section:nth-of-type(3)'),  // Phase 03
+    document.querySelector('section:nth-of-type(4)'),  // Phase 04
+    document.querySelector('section:nth-of-type(5)')   // Phase 05 Quiz
+  ];
+
+  const scrollObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const sectionIndex = sectionMap.indexOf(entry.target);
+        document.querySelectorAll('.progress-pill').forEach((pill, idx) => {
+          pill.classList.toggle('active', idx === sectionIndex);
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sectionMap.forEach(section => {
+    if (section) scrollObserver.observe(section);
+  });
+
+  function scrollToSection(index) {
+    if (sectionMap[index]) {
+      sectionMap[index].scrollIntoView({ behavior: 'smooth' });
+    }
   }
 
   // Initialize quiz
